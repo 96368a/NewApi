@@ -26,7 +26,7 @@ func LoginByPhone(c *gin.Context) {
 		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
 		return
 	}
-	user1 := services.GetOneByPhone(user.Phone)
+	user1 := services.GetOneUserByPhone(user.Phone)
 	if user1 == nil || user1.UserID == 0 {
 		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
 		return
@@ -67,7 +67,7 @@ func LoginByEmail(c *gin.Context) {
 		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
 		return
 	}
-	user1 := services.GetOneByEmail(user.Email)
+	user1 := services.GetOneUserByEmail(user.Email)
 	if user1 == nil || user1.UserID == 0 {
 		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
 		return
@@ -115,7 +115,7 @@ func LoginStatus(c *gin.Context) {
 	}
 	//获取用户信息
 	var user *model.User
-	user = services.GetOne(userId)
+	user = services.GetOneUser(userId)
 	//fmt.Printf("%v id: %v\v", user, userId)
 	// 验证用户是否存在
 	if user.UserID == 0 {

@@ -49,12 +49,12 @@ func TestAdd(t *testing.T) {
 	}
 	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hashPassword)
-	i := Add(user)
+	i := AddUser(user)
 	fmt.Println(i)
 }
 
 func TestGetByPhone(t *testing.T) {
-	phone := GetOneByPhone("15577891000")
+	phone := GetOneUserByPhone("15577891000")
 	fmt.Println(phone)
 	fmt.Println("1")
 }
@@ -94,7 +94,7 @@ func TestAddUsers(t *testing.T) {
 		user.Password = string(hashPassword)
 		user.Phone = fmt.Sprintf("%d", 18888888888-user.UserID)
 		user.Email = fmt.Sprintf("%d%s", user.UserID, "@qq.com")
-		Add(user)
+		AddUser(user)
 		fmt.Printf("%v", user)
 	}
 }

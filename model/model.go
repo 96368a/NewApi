@@ -10,8 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var MusicCol *mongo.Collection
 var UserCol *mongo.Collection
+var SongCol *mongo.Collection
+var AlbumCol *mongo.Collection
+var ArtistCol *mongo.Collection
 
 func init() {
 	if err := godotenv.Load(); err != nil {
@@ -30,21 +32,9 @@ func init() {
 	//		panic(err)
 	//	}
 	//}()
-	MusicCol = client.Database("music").Collection("music")
 	UserCol = client.Database("music").Collection("user")
-	//title := "Back to the Future"
-	//var result bson.M
-	//err = MusicCol.FindOne(context.TODO(), bson.D{{"title", title}}).Decode(&result)
-	//if err == mongo.ErrNoDocuments {
-	//	fmt.Printf("No document was found with the title %s\n", title)
-	//	return
-	//}
-	//if err != nil {
-	//	panic(err)
-	//}
-	//jsonData, err := json.MarshalIndent(result, "", "    ")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Printf("%s\n", jsonData)
+	SongCol = client.Database("music").Collection("song")
+	AlbumCol = client.Database("music").Collection("album")
+	ArtistCol = client.Database("music").Collection("artist")
+
 }

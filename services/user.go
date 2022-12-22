@@ -6,16 +6,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Add(user model.User) interface{} {
-	one := GetOne(user.UserID)
+func AddUser(user model.User) interface{} {
+	one := GetOneUser(user.UserID)
 	if one.UserID == user.UserID {
 		return nil
 	}
-	one = GetOneByEmail(user.Email)
+	one = GetOneUserByEmail(user.Email)
 	if one.Email == user.Email {
 		return nil
 	}
-	one = GetOneByPhone(user.Phone)
+	one = GetOneUserByPhone(user.Phone)
 	if one.Phone == user.Phone {
 		return nil
 	}
@@ -26,19 +26,19 @@ func Add(user model.User) interface{} {
 	return result.InsertedID
 }
 
-func GetOne(id int64) *model.User {
+func GetOneUser(id int64) *model.User {
 	var user model.User
 	model.UserCol.FindOne(context.TODO(), bson.D{{"userid", id}}).Decode(&user)
 	return &user
 }
 
-func GetOneByEmail(email string) *model.User {
+func GetOneUserByEmail(email string) *model.User {
 	var user model.User
 	model.UserCol.FindOne(context.TODO(), bson.D{{"email", email}}).Decode(&user)
 	return &user
 }
 
-func GetOneByPhone(phone string) *model.User {
+func GetOneUserByPhone(phone string) *model.User {
 	var user model.User
 	model.UserCol.FindOne(context.TODO(), bson.D{{"phone", phone}}).Decode(&user)
 	return &user

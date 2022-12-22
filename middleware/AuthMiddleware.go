@@ -37,7 +37,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		//获取用户信息
 		userId := claims.UserId
 		var user *model.User
-		user = services.GetOne(userId)
+		user = services.GetOneUser(userId)
 		//fmt.Printf("%v id: %v\v", user, userId)
 		// 验证用户是否存在
 		if user.UserID == 0 {
