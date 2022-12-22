@@ -1,103 +1,147 @@
 package controller
 
 import (
-	"github.com/96368a/LuoYiMusic-server-api/dto"
-	"github.com/96368a/LuoYiMusic-server-api/model"
-	"github.com/96368a/LuoYiMusic-server-api/services"
-	"github.com/96368a/LuoYiMusic-server-api/utils"
-	"github.com/96368a/LuoYiMusic-server-api/vo"
+	"github.com/96368a/NewApi/dto"
+	"github.com/96368a/NewApi/model"
+	"github.com/96368a/NewApi/services"
+	"github.com/96368a/NewApi/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strings"
 )
 
-func Register(c *gin.Context) {
+func LoginByPhone(c *gin.Context) {
 	var user dto.UserDto
 	c.ShouldBind(&user)
-	if len(user.Nickname) <= 0 || len(user.Username) < 4 || len(user.Password) < 6 {
+	phone := c.Query("phone")
+	password := c.Query("password")
+	if phone != "" {
+		user.Phone = phone
+	}
+	if password != "" {
+		user.Password = password
+	}
+	if len(user.Phone) < 4 || len(user.Password) < 4 {
 		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
 		return
 	}
-	newUser, err := services.AddUser(user.Nickname, user.Username, user.Password)
-	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, err.Error(), nil)
+	user1 := services.GetOneByPhone(user.Phone)
+	if user1 == nil || user1.UserID == 0 {
+		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
 		return
 	}
-	token, err := utils.ReleaseToken(*newUser)
+	err := bcrypt.CompareHashAndPassword([]byte(user1.Password), []byte(user.Password))
+	if err != nil {
+		utils.Fail(c, http.StatusUnauthorized, "密码错误", nil)
+		return
+	}
+	token, err := utils.ReleaseToken(*user1)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "token生成失败", nil)
 	}
 	c.Header("Authorization", token)
-	utils.Success(c, gin.H{"token": token}, "注册成功")
+	user1.Password = ""
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"account": user1,
+		"token":   token,
+		"profile": user1,
+	})
 }
 
-func Login(c *gin.Context) {
+func LoginByEmail(c *gin.Context) {
 	var user dto.UserDto
 	c.ShouldBind(&user)
-	if len(user.Username) < 4 || len(user.Password) < 4 {
+	email := c.Query("email")
+	password := c.Query("password")
+	if email != "" {
+		user.Email = email
+	}
+	if password != "" {
+		user.Password = password
+	}
+
+	if len(user.Email) < 4 || len(user.Password) < 4 {
 		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
 		return
 	}
-	loginUser, err := services.Login(user.Username, user.Password)
-	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, err.Error(), nil)
+	user1 := services.GetOneByEmail(user.Email)
+	if user1 == nil || user1.UserID == 0 {
+		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
 		return
 	}
-	token, err := utils.ReleaseToken(*loginUser)
+	err := bcrypt.CompareHashAndPassword([]byte(user1.Password), []byte(user.Password))
+	if err != nil {
+		utils.Fail(c, http.StatusUnauthorized, "密码错误", nil)
+		return
+	}
+	token, err := utils.ReleaseToken(*user1)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "token生成失败", nil)
 	}
 	c.Header("Authorization", token)
-	utils.Success(c, gin.H{
-		"token": token,
-	}, "登录成功")
+	//c.SetCookie("token", token, 3600, "/", "localhost", false, true)
+	user1.Password = ""
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"account": user1,
+		"token":   token,
+		"profile": user1,
+	})
 }
 
-func UpdateUser(c *gin.Context) {
-	var user dto.UserDto
-	c.ShouldBind(&user)
-	//拿到当前登录用户，并在数据库中查找
-	sessionUser, _ := c.Get("user")
+func LoginStatus(c *gin.Context) {
+	tokenString := c.GetHeader("Authorization")
 
-	if user.Nickname != "" && len(user.Nickname) < 4 {
-		utils.Fail(c, http.StatusBadRequest, "昵称长度至少为4", nil)
+	if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": 401,
+			"msg":  "token格式错误",
+		})
 		return
 	}
 
-	err := services.UpdateUser(sessionUser.(model.User).ID, user.Nickname, user.Signature)
-	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, "更新失败", nil)
+	tokenString = tokenString[7:]
+	token, claims, err := utils.ParseToken(tokenString)
+
+	var userId int64
+
+	if err != nil || !token.Valid {
+		userId = -1
+	} else {
+		userId = claims.UserId
+	}
+	//获取用户信息
+	var user *model.User
+	user = services.GetOne(userId)
+	//fmt.Printf("%v id: %v\v", user, userId)
+	// 验证用户是否存在
+	if user.UserID == 0 {
+		user.Status = -10
+		c.JSON(http.StatusOK, gin.H{
+			"data": gin.H{
+				"code":    200,
+				"account": user,
+				"profile": nil,
+			},
+		})
 		return
 	}
-	utils.Success(c, nil, "更新成功")
+	user.Password = ""
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"code":    200,
+			"account": user,
+			"profile": user,
+		},
+	})
 }
 
-func ChangePassword(c *gin.Context) {
-	var user dto.UserPasswordDto
-	err := c.ShouldBind(&user)
-	if err != nil {
-		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
-		return
-	}
-	//拿到当前登录用户
-	sessionUser, _ := c.Get("user")
-
-	err = bcrypt.CompareHashAndPassword([]byte(sessionUser.(model.User).Password), []byte(user.OldPassword))
-	if err != nil {
-		utils.Fail(c, http.StatusBadRequest, "原密码不正确", nil)
-		return
-	}
-	err = services.UpdatePassword(sessionUser.(model.User).ID, user.Password)
-	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, "内部错误", nil)
-		return
-	}
-	utils.Success(c, nil, "密码更新成功")
-}
-
-func UserInfo(c *gin.Context) {
-	user, _ := c.Get("user")
-	utils.Success(c, gin.H{
-		"user": vo.ToUserVO(user.(model.User)),
-	}, "获取成功")
-}
+//func UserInfo(c *gin.Context) {
+//	user, _ := c.Get("user")
+//	utils.Success(c, gin.H{
+//		"user": vo.ToUserVO(user.(model.User)),
+//	}, "获取成功")
+//}

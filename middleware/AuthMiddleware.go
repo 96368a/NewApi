@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/96368a/NewApi/model"
+	"github.com/96368a/NewApi/services"
 	"github.com/96368a/NewApi/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -23,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString = tokenString[7:]
-		token, _, err := utils.ParseToken(tokenString)
+		token, claims, err := utils.ParseToken(tokenString)
 
 		if err != nil || !token.Valid {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -34,22 +35,22 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 		//获取用户信息
-		//userId := claims.UserId
-		//var user model.User
-		//model.DB.First(&user, userId)
-		////fmt.Printf("%v id: %v\v", user, userId)
-		//// 验证用户是否存在
-		//if user.ID == 0 {
-		//	ctx.JSON(http.StatusUnauthorized, gin.H{
-		//		"code": 401,
-		//		"msg":  "token用户不存在",
-		//	})
-		//	ctx.Abort()
-		//	return
-		//}
-		//
-		////用户存在 将user信息写入上下文
-		//ctx.Set("user", user)
+		userId := claims.UserId
+		var user *model.User
+		user = services.GetOne(userId)
+		//fmt.Printf("%v id: %v\v", user, userId)
+		// 验证用户是否存在
+		if user.UserID == 0 {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code": 401,
+				"msg":  "token用户不存在",
+			})
+			ctx.Abort()
+			return
+		}
+
+		//用户存在 将user信息写入上下文
+		ctx.Set("user", user)
 
 		ctx.Next()
 	}
@@ -58,21 +59,21 @@ func AuthMiddleware() gin.HandlerFunc {
 func AdminAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//用户存在 将user信息写入上下文
-		user, ok := ctx.Get("user")
+		_, ok := ctx.Get("user")
 		if !ok {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code": 401,
 				"msg":  "用户不存在",
 			})
 		}
-		if user.(model.User).IsAdmin != 1 {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code": 401,
-				"msg":  "哼，想越权？",
-			})
-			ctx.Abort()
-			return
-		}
+		//if user.(model.User).IsAdmin != 1 {
+		//	ctx.JSON(http.StatusUnauthorized, gin.H{
+		//		"code": 401,
+		//		"msg":  "哼，想越权？",
+		//	})
+		//	ctx.Abort()
+		//	return
+		//}
 
 		ctx.Next()
 	}

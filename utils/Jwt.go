@@ -9,14 +9,14 @@ import (
 var jwtKey = []byte("THIS_A_TEST_JGFEKU_KEY")
 
 type Claims struct {
-	UserId uint64
+	UserId int64
 	jwt.RegisteredClaims
 }
 
 func ReleaseToken(user model.User) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour)
 	claims := &Claims{
-		UserId: user.ID,
+		UserId: user.UserID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

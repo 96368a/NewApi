@@ -2,6 +2,7 @@
 resources/
 *.db
 *.mp3
+*.env
 
 # Binaries for programs and plugins
 *.exe
