@@ -7,6 +7,18 @@ import (
 )
 
 func Add(user model.User) interface{} {
+	one := GetOne(user.UserID)
+	if one.UserID == user.UserID {
+		return nil
+	}
+	one = GetOneByEmail(user.Email)
+	if one.Email == user.Email {
+		return nil
+	}
+	one = GetOneByPhone(user.Phone)
+	if one.Phone == user.Phone {
+		return nil
+	}
 	result, err := model.UserCol.InsertOne(context.TODO(), user)
 	if err != nil {
 		return nil
