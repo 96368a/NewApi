@@ -51,3 +51,18 @@ func SearchSong(keyword string, limit int64, offset int64) []*model.Song {
 	}
 	return songs
 }
+
+func GetSongs(ids []int64) []*model.Song {
+	var songs []*model.Song
+	cursor, err := model.SongCol.Find(context.TODO(), bson.D{{"id", bson.D{{"$in", ids}}}})
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &songs) != nil {
+		return nil
+	}
+	if len(songs) == 0 {
+		return nil
+	}
+	return songs
+}
