@@ -21,7 +21,7 @@ func AddArtist(artist model.Artist) interface{} {
 
 func GetOneArtist(id int64) *model.Artist {
 	var artist model.Artist
-	model.ArtistCol.FindOne(context.TODO(), model.Artist{ID: id}).Decode(&artist)
+	model.ArtistCol.FindOne(context.TODO(), bson.D{{"id", id}}).Decode(&artist)
 	if artist.ID == 0 {
 		return nil
 	}
@@ -30,12 +30,31 @@ func GetOneArtist(id int64) *model.Artist {
 
 func GetOneArtistByObjectId(id int64) *model.Artist {
 	var artist model.Artist
-	model.ArtistCol.FindOne(context.TODO(), model.Artist{ID: id}).Decode(&artist)
+	model.ArtistCol.FindOne(context.TODO(), bson.D{{"id", id}}).Decode(&artist)
 	if artist.ID == 0 {
 		return nil
 	}
 	return &artist
 }
+
+func GetArtistAlbum(id int64, limit int) []*model.Album {
+	var albums []*model.Album
+	cursor, err := model.AlbumCol.Find(context.TODO(), bson.D{{"artist.id", id}}, options.Find().SetLimit(int64(limit)))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &albums) != nil {
+		return nil
+	}
+	if len(albums) == 0 {
+		return nil
+	}
+	return albums
+}
+
+//func GetArtist(id int64, limit int) *model.Artist {
+//
+//}
 
 func SearchArtist(keyword string, limit int64, offset int64) []*model.Artist {
 	var artists []*model.Artist
