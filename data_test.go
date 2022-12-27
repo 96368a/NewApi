@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/96368a/NewApi/model"
+	"github.com/96368a/NewApi/services"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func get(url string) (map[string]any, error) {
@@ -123,6 +126,120 @@ func getPlaylist(id int64) (*model.Playlist, error) {
 	return &songList, nil
 }
 
+func addSong(id int64) error {
+	song, err := getSong(id)
+	if err != nil {
+		return err
+	}
+	//添加歌手
+	for _, ar := range song.Ar {
+		artist := services.GetOneArtist(ar.ID)
+		if artist == nil {
+			arr, err := getArtist(ar.ID)
+			if err != nil {
+				return err
+			}
+			services.AddArtist(*arr)
+		}
+	}
+	//添加专辑
+	album := services.GetOneAlbum(song.Al.ID)
+	if album == nil {
+		alb, err := getAlbum(song.Al.ID)
+		if err != nil {
+			return err
+		}
+		services.AddAlbum(*alb)
+	}
+	oneSong := services.GetOneSong(id)
+	if oneSong == nil {
+		services.AddSong(*song)
+	}
+	fmt.Println(song)
+	return nil
+}
+
+func addPlaylist(id int64) error {
+	playlist, err := getPlaylist(id)
+	if err != nil {
+		return err
+	}
+	var num int = len(playlist.TrackIDS)
+	rand.Seed(time.Now().Unix())
+	if len(playlist.TrackIDS) > 30 {
+		num = rand.Intn(len(playlist.TrackIDS)-30) + 30
+	}
+	for i, song := range playlist.TrackIDS {
+		if i < num {
+			addSong(song.ID)
+		}
+	}
+	onePlaylist := services.GetOnePlaylist(id)
+	if onePlaylist == nil {
+		services.AddPlaylist(*playlist)
+	}
+	return nil
+}
+
+func TestAddData(t *testing.T) {
+	//err := addPlaylist(3778678)
+	//if err != nil {
+	//	t.Error(err)
+	//}http://y.233c.cn/personalized?limit=102
+	url := "https://y.233c.cn/top/playlist/highquality?limit=101"
+	data, err := get(url)
+	if err != nil {
+		t.Error(err)
+	}
+	if data["code"].(float64) != 200 {
+		t.Error("获取失败")
+	}
+	playlists := make([]model.Playlist, 0)
+	data1, err := json.Marshal(data["playlists"])
+	if err != nil {
+		t.Error(err)
+	}
+	err = json.Unmarshal(data1, &playlists)
+	fmt.Printf("%v", playlists)
+	for _, playlist := range playlists {
+		addPlaylist(playlist.ID)
+	}
+
+}
+
+func TestAddSong(t *testing.T) {
+	id := int64(347230)
+	song, err := getSong(id)
+	if err != nil {
+		t.Error(err)
+	}
+	//添加歌手
+	for _, ar := range song.Ar {
+		artist := services.GetOneArtist(ar.ID)
+		if artist == nil {
+			arr, err := getArtist(ar.ID)
+			if err != nil {
+				t.Error(err)
+			}
+			services.AddArtist(*arr)
+		}
+	}
+	//添加专辑
+	album := services.GetOneAlbum(song.Al.ID)
+	if album == nil {
+		alb, err := getAlbum(song.Al.ID)
+		if err != nil {
+			t.Error(err)
+		}
+		services.AddAlbum(*alb)
+	}
+	oneSong := services.GetOneSong(id)
+	if oneSong == nil {
+		services.AddSong(*song)
+	}
+	fmt.Println(song)
+}
+
 func TestSongDetail(t *testing.T) {
 	//artist, err := getArtist(11972054)
 	//if err != nil {
@@ -150,7 +267,7 @@ func TestSongDetail(t *testing.T) {
 	}
 	songs, err := getSongs(ids)
 	if err != nil {
-		return
+		t.Error(err)
 	}
 	fmt.Println(songs)
 }

@@ -16,6 +16,7 @@ func InitRouter() *gin.Engine {
 	r.GET("/login/cellphone", controller.LoginByPhone)
 	r.POST("/login/cellphone", controller.LoginByPhone)
 	r.GET("/login/status", controller.LoginStatus)
+	r.GET("/search", controller.Search)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{

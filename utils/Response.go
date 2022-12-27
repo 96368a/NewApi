@@ -5,18 +5,24 @@ import (
 	"net/http"
 )
 
-func Response(ctx *gin.Context, httpStatus int, code int, data gin.H, msg string) {
-	ctx.JSON(httpStatus, gin.H{
+func Response(ctx *gin.Context, httpStatus int, code int, data gin.H) {
+	res := gin.H{
 		"code": code,
-		"data": data,
-		"msg":  msg,
+	}
+	if data != nil {
+		for k, v := range data {
+			res[k] = v
+		}
+	}
+	ctx.JSON(httpStatus, res)
+}
+
+func Success(ctx *gin.Context, data gin.H) {
+	Response(ctx, http.StatusOK, 200, data)
+}
+
+func Fail(ctx *gin.Context, code int, msg string) {
+	Response(ctx, http.StatusOK, code, gin.H{
+		"msg": msg,
 	})
-}
-
-func Success(ctx *gin.Context, data gin.H, msg string) {
-	Response(ctx, http.StatusOK, 200, data, msg)
-}
-
-func Fail(ctx *gin.Context, code int, msg string, data gin.H) {
-	Response(ctx, http.StatusOK, code, data, msg)
 }

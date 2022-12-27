@@ -98,3 +98,11 @@ func TestAddUsers(t *testing.T) {
 		fmt.Printf("%v", user)
 	}
 }
+
+func TestSearchSong(t *testing.T) {
+	song := SearchSong("海阔dfhgfd天空")
+	if song == nil {
+		t.Error("错误")
+	}
+	fmt.Printf("%v", song)
+}

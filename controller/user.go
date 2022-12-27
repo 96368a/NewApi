@@ -23,22 +23,22 @@ func LoginByPhone(c *gin.Context) {
 		user.Password = password
 	}
 	if len(user.Phone) < 4 || len(user.Password) < 4 {
-		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
+		utils.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user1 := services.GetOneUserByPhone(user.Phone)
 	if user1 == nil || user1.UserID == 0 {
-		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
+		utils.Fail(c, http.StatusBadRequest, "用户不存在")
 		return
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(user1.Password), []byte(user.Password))
 	if err != nil {
-		utils.Fail(c, http.StatusUnauthorized, "密码错误", nil)
+		utils.Fail(c, http.StatusUnauthorized, "密码错误")
 		return
 	}
 	token, err := utils.ReleaseToken(*user1)
 	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, "token生成失败", nil)
+		utils.Fail(c, http.StatusInternalServerError, "token生成失败")
 	}
 	c.Header("Authorization", token)
 	user1.Password = ""
@@ -64,22 +64,22 @@ func LoginByEmail(c *gin.Context) {
 	}
 
 	if len(user.Email) < 4 || len(user.Password) < 4 {
-		utils.Fail(c, http.StatusBadRequest, "参数错误", nil)
+		utils.Fail(c, http.StatusBadRequest, "参数错误")
 		return
 	}
 	user1 := services.GetOneUserByEmail(user.Email)
 	if user1 == nil || user1.UserID == 0 {
-		utils.Fail(c, http.StatusBadRequest, "用户不存在", nil)
+		utils.Fail(c, http.StatusBadRequest, "用户不存在")
 		return
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(user1.Password), []byte(user.Password))
 	if err != nil {
-		utils.Fail(c, http.StatusUnauthorized, "密码错误", nil)
+		utils.Fail(c, http.StatusUnauthorized, "密码错误")
 		return
 	}
 	token, err := utils.ReleaseToken(*user1)
 	if err != nil {
-		utils.Fail(c, http.StatusInternalServerError, "token生成失败", nil)
+		utils.Fail(c, http.StatusInternalServerError, "token生成失败")
 	}
 	c.Header("Authorization", token)
 	//c.SetCookie("token", token, 3600, "/", "localhost", false, true)

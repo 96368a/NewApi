@@ -14,6 +14,7 @@ var UserCol *mongo.Collection
 var SongCol *mongo.Collection
 var AlbumCol *mongo.Collection
 var ArtistCol *mongo.Collection
+var PlaylistCol *mongo.Collection
 
 func init() {
 	if err := godotenv.Load(); err != nil {
@@ -36,5 +37,6 @@ func init() {
 	SongCol = client.Database("music").Collection("song")
 	AlbumCol = client.Database("music").Collection("album")
 	ArtistCol = client.Database("music").Collection("artist")
+	PlaylistCol = client.Database("music").Collection("playlist")
 
 }
