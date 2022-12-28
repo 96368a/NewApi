@@ -30,10 +30,8 @@ func GetArtistAlbum(c *gin.Context) {
 		return
 	}
 	utils.Success(c, gin.H{
-		"artist": artist,
-		"hotAlbums": gin.H{
-			"albums": albums,
-		},
+		"artist":    artist,
+		"hotAlbums": albums,
 	})
 }
 
@@ -92,14 +90,24 @@ func GetArtistToplist(c *gin.Context) {
 		typeInt = 0
 	}
 
-	toplist := services.GetArtistToplist(typeInt)
-	if toplist == nil {
+	aritsts := services.GetArtistToplist(typeInt)
+	if aritsts == nil {
 		utils.Fail(c, 400, "参数错误")
 		return
 	}
+	var artistsDto []interface{}
+	for _, v := range aritsts {
+		artistsDto = append(artistsDto, gin.H{
+			"id":        v.ID,
+			"name":      v.Name,
+			"picUrl":    v.Cover,
+			"alias":     v.Alias,
+			"img1v1Url": v.Cover,
+		})
+	}
 	utils.Success(c, gin.H{
 		"list": gin.H{
-			"artists": toplist,
+			"artists": artistsDto,
 			"type":    typeInt,
 		},
 	})
