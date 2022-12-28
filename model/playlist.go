@@ -34,12 +34,12 @@ type Playlist struct {
 	TrackCount            int64            `json:"trackCount"`
 	TrackIDS              []TrackIDElement `json:"trackIds"` // 歌单歌曲id
 	TrackNumberUpdateTime int64            `json:"trackNumberUpdateTime"`
-	//Tracks                []Song           `json:"tracks"` // 歌单歌曲内容
-	TrackUpdateTime int64       `json:"trackUpdateTime"`
-	UpdateTime      int64       `json:"updateTime"`
-	UserID          int64       `json:"userId"` // 用户id
-	VideoIDS        interface{} `json:"videoIds"`
-	Videos          interface{} `json:"videos"`
+	Tracks                []Song           `json:"tracks"` // 歌单歌曲内容
+	TrackUpdateTime       int64            `json:"trackUpdateTime"`
+	UpdateTime            int64            `json:"updateTime"`
+	UserID                int64            `json:"userId"` // 用户id
+	VideoIDS              interface{}      `json:"videoIds"`
+	Videos                interface{}      `json:"videos"`
 }
 
 type TrackIDElement struct {

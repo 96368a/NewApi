@@ -52,8 +52,16 @@ func GetPlaylistDetail(c *gin.Context) {
 		return
 	}
 	playlist := services.GetOnePlaylist(int64(id))
+	var ids []int64
+	for i, v := range playlist.TrackIDS {
+		if i < 20 {
+			ids = append(ids, v.ID)
+		}
+	}
+	songs := services.GetSongs(ids)
 	utils.Success(c, gin.H{
-		"playlist": playlist,
+		"playlist":   playlist,
+		"privileges": songs,
 	})
 
 }
