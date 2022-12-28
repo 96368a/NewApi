@@ -19,6 +19,8 @@ func InitRouter() *gin.Engine {
 	r.GET("/search", controller.Search)
 	r.GET("/song/detail", controller.SongDetail)
 	r.GET("/artist/album", controller.GetArtistAlbum)
+	r.GET("/album", controller.GetAlbumSongs)
+	r.GET("/album/new", controller.GetNewAlbum)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{
