@@ -70,3 +70,46 @@ func SearchArtist(keyword string, limit int64, offset int64) []*model.Artist {
 	}
 	return artists
 }
+
+func GetArtistHotSongs(id int64) []*model.Song {
+	var songs []*model.Song
+	cursor, err := model.SongCol.Find(context.TODO(), bson.D{{"ar.id", id}}, options.Find().SetLimit(10))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &songs) != nil {
+		return nil
+	}
+	if len(songs) == 0 {
+		return nil
+	}
+	return songs
+}
+
+func GetArtistSongs(id int64, limit int64, offset int64) []*model.Song {
+	var songs []*model.Song
+	cursor, err := model.SongCol.Find(context.TODO(), bson.D{{"ar.id", id}}, options.Find().SetLimit(limit).SetSkip(offset))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &songs) != nil {
+		return nil
+	}
+	if len(songs) == 0 {
+		return nil
+	}
+	return songs
+}
+
+func GetArtistToplist(type1 int) []*model.Artist {
+	var artists []*model.Artist
+	cursor, err := model.ArtistCol.Find(context.TODO(), bson.D{{"rank.type", type1}}, options.Find().SetSort(bson.D{{"rank.rank", 1}}).SetLimit(100))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &artists) != nil {
+		return nil
+	}
+	return artists
+
+}

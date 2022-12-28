@@ -51,3 +51,18 @@ func SearchPlaylist(keyword string, limit int64, offset int64) []*model.Playlist
 	}
 	return playlists
 }
+
+func GetPlaylistToplist() []*model.Playlist {
+	var playlists []*model.Playlist
+	cursor, err := model.PlaylistCol.Find(context.TODO(), bson.D{}, options.Find().SetLimit(50).SetSort(bson.D{{"sharecount", -1}}))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &playlists) != nil {
+		return nil
+	}
+	if len(playlists) == 0 {
+		return nil
+	}
+	return playlists
+}
