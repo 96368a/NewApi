@@ -22,9 +22,20 @@ func GetPlaylistPersonalized(c *gin.Context) {
 		limit = 30
 	}
 	playlists := services.GetPlaylistPersonalized(int64(limit))
-
+	var playlistDto []map[string]any
+	for _, playlist := range playlists {
+		playlistDto = append(playlistDto, map[string]any{
+			"id":                    playlist.ID,
+			"name":                  playlist.Name,
+			"picUrl":                playlist.CoverImgURL,
+			"playCount":             playlist.PlayCount,
+			"trackCount":            playlist.TrackCount,
+			"trackNumberUpdateTime": playlist.TrackUpdateTime,
+			"type":                  playlist.AdType,
+		})
+	}
 	utils.Success(c, gin.H{
-		"result": playlists,
+		"result": playlistDto,
 	})
 
 }
