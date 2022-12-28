@@ -36,9 +36,19 @@ func Search(c *gin.Context) {
 	case 100:
 		{
 			aritsts := services.SearchArtist(keywords, int64(limit), int64(offset))
+			var artistsDto []interface{}
+			for _, v := range aritsts {
+				artistsDto = append(artistsDto, gin.H{
+					"id":        v.ID,
+					"name":      v.Name,
+					"picUrl":    v.Cover,
+					"alias":     v.Alias,
+					"img1v1Url": v.Cover,
+				})
+			}
 			utils.Success(c, gin.H{
 				"result": gin.H{
-					"artists": aritsts,
+					"artists": artistsDto,
 				},
 			})
 		}

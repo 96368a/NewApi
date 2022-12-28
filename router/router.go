@@ -16,6 +16,7 @@ func InitRouter() *gin.Engine {
 	r.GET("/login/cellphone", controller.LoginByPhone)
 	r.POST("/login/cellphone", controller.LoginByPhone)
 	r.GET("/login/status", controller.LoginStatus)
+	r.GET("/search/:all", controller.Search)
 	r.GET("/search", controller.Search)
 	r.GET("/song/detail", controller.SongDetail)
 	r.GET("/artist/album", controller.GetArtistAlbum)
