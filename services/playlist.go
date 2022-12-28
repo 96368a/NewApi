@@ -5,6 +5,9 @@ import (
 	"github.com/96368a/NewApi/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 func AddPlaylist(playlist model.Playlist) interface{} {
@@ -65,4 +68,22 @@ func GetPlaylistToplist() []*model.Playlist {
 		return nil
 	}
 	return playlists
+}
+
+func GetPlaylistPersonalized(limit int64) []*model.Playlist {
+	var playlists []*model.Playlist
+	time, err := strconv.Atoi(time.Now().Format("20060102"))
+	if err != nil {
+		return nil
+	}
+	rand.Seed(int64(time))
+	cursor, err := model.PlaylistCol.Find(context.TODO(), bson.D{}, options.Find().SetLimit(limit).SetSkip(int64(rand.Intn(1000))))
+	if err != nil {
+		return nil
+	}
+	if cursor.All(context.TODO(), &playlists) != nil {
+		return nil
+	}
+	return playlists
+
 }
