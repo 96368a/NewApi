@@ -39,3 +39,21 @@ func GetPlaylistPersonalized(c *gin.Context) {
 	})
 
 }
+
+func GetPlaylistDetail(c *gin.Context) {
+	idStr := c.Query("id")
+	if idStr == "" {
+		utils.Fail(c, 400, "参数错误")
+		return
+	}
+	id, _ := strconv.Atoi(idStr)
+	if id <= 0 {
+		utils.Fail(c, 400, "参数错误")
+		return
+	}
+	playlist := services.GetOnePlaylist(int64(id))
+	utils.Success(c, gin.H{
+		"playlist": playlist,
+	})
+
+}

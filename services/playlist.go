@@ -24,7 +24,7 @@ func AddPlaylist(playlist model.Playlist) interface{} {
 
 func GetOnePlaylist(id int64) *model.Playlist {
 	var playlist model.Playlist
-	model.PlaylistCol.FindOne(context.TODO(), model.Playlist{ID: id}).Decode(&playlist)
+	model.PlaylistCol.FindOne(context.TODO(), bson.D{{"id", id}}).Decode(&playlist)
 	if playlist.ID == 0 {
 		return nil
 	}
