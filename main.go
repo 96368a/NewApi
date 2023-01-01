@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/96368a/NewApi/router"
-	"github.com/96368a/NewApi/test"
 	"github.com/gin-gonic/gin"
 	"os"
 )
@@ -22,6 +21,5 @@ func main() {
 		os.Mkdir("resources/images", 0755)
 	}
 
-	test.Test()
 	panic(r.Run(":8800"))
 }

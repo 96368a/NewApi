@@ -1,0 +1,89 @@
+@startuml
+
+    class 专辑类 << (S,Aquamarine) >> {
+        + Alias []string
+        + Artist Artist
+        + Artists []Artist
+        + Description string
+        + ID int64
+        + Name string
+        + PicURL string
+        + PublishTime int64
+        + Size int64
+        + Songs []string
+        + Status int64
+        + Tags string
+        + Type string
+
+    }
+    class 歌手类 << (S,Aquamarine) >> {
+        + AlbumSize int64
+        + Alias []string
+        + Cover string
+        + ID int64
+        + MusicSize int64
+        + Name string
+        + PicID int64
+        + PicURL string
+        + PublishTime int64
+        + Rank Rank
+        + Trans string
+        + TransNames []string
+
+    }
+
+    class 歌单 << (S,Aquamarine) >> {
+        + CoverImgURL string
+        + CreateTime int64
+        + Creator User
+        + Description string
+        + ID int64
+        + Name string
+        + PlayCount int64
+        + Privacy int64
+        + ShareCount int64
+        + Status int64
+        + Tags []string
+        + TrackCount int64
+        + TrackIDS []int64
+        + Tracks []Song
+        + TrackUpdateTime int64
+        + UpdateTime int64
+        + UserID int64
+    }
+    class 用户类 << (S,Aquamarine) >> {
+        + AvatarURL string
+        + Birthday int64
+        + City int64
+        + Description string
+        + Gender int64
+        + Nickname string
+        + Password string
+        + Email string
+        + Province int64
+        + Signature string
+        + UserID int64
+        + UserType int64
+        + Status int
+
+    }
+    class 歌曲类 << (S,Aquamarine) >> {
+        + Al Album
+        + Alia []string
+        + Ar []Artist
+        + Dt int64
+        + Fee int64
+        + ID int64
+        + Name string
+        + PublishTime int64
+        + Single int64
+    }
+
+    class Rank << (S,Aquamarine) >> {
+        + Rank int64
+        + Type int64
+    }
+
+
+
+@enduml
